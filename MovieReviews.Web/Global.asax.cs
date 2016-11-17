@@ -1,4 +1,6 @@
-﻿using System.Web;
+﻿using MovieReviews.Web.App_Start;
+using System;
+using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -15,6 +17,7 @@ namespace MovieReviews.Web
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            AutofacConfig.AutofacStart();
         }
     }
 }
