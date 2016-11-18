@@ -17,6 +17,8 @@ namespace MovieReviews.Web.App_Start
 
             builder.RegisterControllers(typeof(MvcApplication).Assembly);
             builder.RegisterType<ReviewRepository>().As<IReviewRepository>();
+            builder.RegisterType<LuceneIndexBuilder>().As<IIndexBuilder>();
+            builder.RegisterType<OmdbApiService>().As<IMovieApiService>();
 
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));

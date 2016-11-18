@@ -21,15 +21,14 @@ namespace MovieReviews.Web.Controllers
 
         public ActionResult Index()
         {
-            var test = new Review
-            {
-                Title = "Test rev",
-                Movie = null,
-                Text = "A cool review"
-            };
-            ReviewRepository.Save(test);
-
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult Index(string searchTerm)
+        {
+            var res = String.IsNullOrWhiteSpace(searchTerm) ? "N/A" : searchTerm;
+            return Content(res, "text/html");
         }
     }
 }

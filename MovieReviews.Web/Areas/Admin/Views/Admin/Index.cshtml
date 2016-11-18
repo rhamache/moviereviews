@@ -1,9 +1,32 @@
 ﻿
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Admin Panel";
 }
 
-<h2>Index</h2>
+<h2>@ViewBag.Title</h2>
 
-<button>Import Review Data</button>
+<div class="row">
+    @Html.Label("Fetch Metadata from OMDB API", new { @class ="col-sm-4" })
+    <div class="col-sm-8">
+        @Html.CheckBox("fetchMetaData")
+    </div>
+</div>
 
+<button class="btn btn-primary" onclick="importReviews()">Import Review Data</button>
+
+<script type="text/javascript">
+    function importReviews() {
+        $.ajax({
+            method: "POST",
+            url: "@Url.Action("BuildLuceneIndex", "Admin", new { Area = "Admin"})",
+            data: {
+                fetchMetaData : $('#fetchMetaData').val()
+            },
+            success: function(resp) {
+                if (resp.status === "success") {
+                    alert("YES");
+                }
+            }
+        })
+    }
+</script>
