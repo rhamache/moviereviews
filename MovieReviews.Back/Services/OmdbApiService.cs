@@ -16,7 +16,12 @@ namespace MovieReviews.Back.Services
             using (var client = new WebClient())
             {
                 var jsonResp = client.DownloadString(String.Format("http://www.omdbapi.com/?i={0}", imdbId));
-                return JsonConvert.DeserializeObject<OmdbMovie>(jsonResp);
+                var res = JsonConvert.DeserializeObject<OmdbMovie>(jsonResp);
+                if (res.Title == "#DUPE#")
+                {
+                    return GetMovie(res.imdbID);
+                }
+                return res;
             }
         }
     }

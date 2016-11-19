@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>@ViewBag.Title - Movie Review DB</title>
+    <title>Movie and Show Reviews</title>
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @Styles.Render("~/Content/css")
@@ -10,33 +10,41 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.ActionLink("Movie Review DB", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+    <div class="text-center show-header" data-bind="css: { 'hide-header': hasResults, 'show-header': !$data.hasResults() }">
+        <h1 class="main-header">Film &amp; Show Reviews <span class="fa fa-film" aria-hidden="true"></span></h1>
+        <h4>Search thousands of user reviews from <a href="http://www.imdb.com/">IMDb</a></h4>
+    </div>
+    <div class="searchBar" data-bind="css: { 'searchBar-inSearch': hasResults }">
+        @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @class = "form-horizontal", id = "mainSearchForm" }))
+        {
+            <a href="/" data-bind="css: { 'disable': !$data.hasResults() }">
+                <div class="pull-left searchBar-brand" data-bind="css: { 'show-brand': hasResults }">
+                    <span class="fa fa-film"></span>
+                </div>
+            </a>
+
+            <div class="col-sm-8 col-sm-offset-2">
+                <div class="input-group searchInput">
+                    <input type="text" class="form-control" data-bind="textInput: searchTerm" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-secondary" data-bind="click: search"><span class="fa fa-search"></span></button>
+                    </span>
+                </div>
             </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
-                </ul>
-            </div>
-        </div>
+        }
     </div>
     <div class="container body-content">
         @RenderBody()
         @RenderSection("SPAViews", required: false)
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - Movie Review DB</p>
+            <p>&copy; @DateTime.Now.Year - Ryan Hamacher</p>
         </footer>
     </div>
 
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/knockout")
+    <script type="text/javascript" src="~/Scripts/search/search.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

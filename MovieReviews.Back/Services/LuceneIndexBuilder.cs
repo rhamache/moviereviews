@@ -1,5 +1,6 @@
 ﻿using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Snowball;
+using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.QueryParsers;
@@ -15,7 +16,7 @@ namespace MovieReviews.Back.Services
 {
     public class LuceneIndexBuilder : IIndexBuilder
     {
-        private const int REVIEW_TO_PROCESS_COUNT = 1500;
+        private const int REVIEW_TO_PROCESS_COUNT = 2000;
 
         protected IMovieApiService MovieApi { get; private set; }
 
@@ -31,7 +32,7 @@ namespace MovieReviews.Back.Services
         {
             var currentPath = AppDomain.CurrentDomain.BaseDirectory;
             var resourcePath = Path.Combine(currentPath, "..\\MovieReviews.Back\\Resources");
-            var indexDir = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(resourcePath));
+            var indexDir = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(Path.Combine(resourcePath, "ReviewIndex")));
 
             var positiveReviewPaths = Directory.GetFiles(Path.Combine(resourcePath, "aclImdb\\train\\pos")).OrderBy(n => n).Take(REVIEW_TO_PROCESS_COUNT).ToArray();
             var negativeReviewPaths = Directory.GetFiles(Path.Combine(resourcePath, "aclImdb\\train\\neg")).OrderBy(n => n).Take(REVIEW_TO_PROCESS_COUNT).ToArray();
@@ -43,6 +44,7 @@ namespace MovieReviews.Back.Services
                 {
                     var docP = CreateReviewDocument(positiveReviewPaths[i], Path.Combine(resourcePath, "aclImdb\\train\\urls_pos.txt"), fetchMetaData);
                     idxw.AddDocument(docP);
+
                     var docN = CreateReviewDocument(negativeReviewPaths[i], Path.Combine(resourcePath, "aclImdb\\train\\urls_neg.txt"), fetchMetaData);
                     idxw.AddDocument(docN);
                 }
@@ -64,16 +66,18 @@ namespace MovieReviews.Back.Services
             var fldText = new Field("text", File.ReadAllText(reviewPath), Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.YES);
             var fldUrl = new Field("url", url, Field.Store.YES, Field.Index.NO, Field.TermVector.NO);
             var fldScr = new Field("score", score, Field.Store.YES, Field.Index.NO, Field.TermVector.NO);
-            var fldImdbId = new Field("imdbId", id, Field.Store.YES, Field.Index.NO, Field.TermVector.NO);
+            var fldImdbId = new Field("imdbId", id, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
 
             if (fetchMetaData)
             {
                 var movie = MovieApi.GetMovie(id);
+                var fldImdbId2 = new Field("imdbId2", movie.imdbID, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
                 var fldTitle = new Field("title", movie.Title, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.YES);
                 var fldRuntime = new Field("runtime", movie.Runtime, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
                 var fldReleased = new Field("releaseDate", movie.Released, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
                 var fldGenre = new Field("genre", movie.Genre, Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.YES);
 
+                doc.Add(fldImdbId2);
                 doc.Add(fldTitle);
                 doc.Add(fldRuntime);
                 doc.Add(fldReleased);

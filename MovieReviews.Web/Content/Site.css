@@ -1,9 +1,4 @@
-﻿body {
-    padding-top: 50px;
-    padding-bottom: 20px;
-}
-
-/* Set padding to keep content from hitting the edges */
+﻿/* Set padding to keep content from hitting the edges */
 .body-content {
     padding-left: 15px;
     padding-right: 15px;
@@ -16,13 +11,6 @@
     white-space: normal;
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
-input,
-select,
-textarea {
-    max-width: 280px;
-}
-
 /* Set padding to display errors that occur during databinding */
 .padding-error {
     padding-top: 20px;
@@ -33,4 +21,66 @@ textarea {
         float: none;
         padding: 10px 15px;
     }
+}
+
+.hide-header {
+    overflow: hidden;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    transition: 1.0s ease-out;
+}
+
+.show-header {
+    transition: 1.0s ease-out;
+    max-height: 150px;
+    overflow: hidden;
+    margin-top: 50px;
+    margin-bottom: 25px;
+}
+
+.main-header {
+    font-size: 4em;
+}
+
+.navbar {
+    background-color: #fff !important;
+    border: 0 !important;
+}
+
+.searchInput {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+#result {
+    margin-top: 64px;
+}
+
+.searchBar-inSearch {
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px 0px;
+    position: fixed;
+    z-index: 9999;
+    background-color: #fff;
+    transition: box-shadow 1.0s ease-in;
+}
+
+.searchBar-brand{
+    padding: 14px 20px; 
+    color: #fff; 
+    background-color: #333; 
+    font-size: 2em;
+    opacity: 0;
+    transition: opacity 1.0s ease-in;
+}
+
+.show-brand {
+    opacity: 1;
+}
+
+a.disable {
+    pointer-events: none;
+    cursor: default;
 }
