@@ -25,13 +25,13 @@ namespace MovieReviews.Back.Services
             SnowballAnalyzer = new SnowballAnalyzer(Lucene.Net.Util.Version.LUCENE_29, "English");
 
             var currentPath = AppDomain.CurrentDomain.BaseDirectory;
-            var resourcePath = Path.Combine(currentPath, "..\\MovieReviews.Back\\Resources");
+            var resourcePath = Path.Combine(currentPath, "Resources");
             IndexDirectory = FSDirectory.Open(new DirectoryInfo(Path.Combine(resourcePath, "ReviewIndex")));
         }
 
         public IQueryable<Review> Search(string searchText)
         {
-            var multiParser = new MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_29,new[] { "text", "imdbId", "title", "genre" }, SnowballAnalyzer);
+            var multiParser = new MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_29,new[] { "text", "imdbId", "title", "genre", "episodeTitle" }, SnowballAnalyzer);
 
             var query = multiParser.Parse(searchText);
             var reviewSearcher = new IndexSearcher(IndexDirectory);
@@ -45,7 +45,7 @@ namespace MovieReviews.Back.Services
             // null highlighter will return the ENTIRE field with relevant terms highlighted
             var nullHighlighter = new Highlighter(scorer);
             nullHighlighter.TextFragmenter = new NullFragmenter();
-
+            decimal score, overall;
             return reviewDocs.AsQueryable().Select(doc => new Review
             {
                 Url = doc.GetField("url").StringValue,
@@ -56,15 +56,14 @@ namespace MovieReviews.Back.Services
                     ImdbId = nullHighlighter.GetBestFragment(SnowballAnalyzer, "imdbId", doc.GetField("imdbId").StringValue) ?? doc.GetField("imdbId").StringValue,
                     Genre = nullHighlighter.GetBestFragment(SnowballAnalyzer, "genre", doc.GetField("genre").StringValue) ?? doc.GetField("genre").StringValue,
                     RunningTime = doc.GetField("runtime").StringValue,
-                    ReleaseDate = doc.GetField("releaseDate").StringValue
+                    ReleaseDate = doc.GetField("releaseDate").StringValue,
+                    EpisodeName = nullHighlighter.GetBestFragment(SnowballAnalyzer, "episodeTitle", doc.GetField("episodeTitle").StringValue) ?? doc.GetField("episodeTitle").StringValue,
+                    OverallScore = decimal.TryParse(doc.GetField("overallScore").StringValue, out overall) ? overall : -1m,
+                    Country = doc.GetField("country").StringValue,
+                    ImageUrl = doc.GetField("image").StringValue
                 },
-                MatchedFragments = new[] 
-                {
-                    highlighter.GetBestFragment(SnowballAnalyzer, "title", doc.GetField("title").StringValue),
-                    highlighter.GetBestFragment(SnowballAnalyzer, "text", doc.GetField("text").StringValue),
-                    highlighter.GetBestFragment(SnowballAnalyzer, "genre", doc.GetField("genre").StringValue),
-                    highlighter.GetBestFragment(SnowballAnalyzer, "imdbId", doc.GetField("imdbId").StringValue),
-                }
+                MatchedFragments = highlighter.GetBestFragments(SnowballAnalyzer, "text", doc.GetField("text").StringValue, 5),
+                Score = decimal.TryParse(doc.GetField("score").StringValue, out score) ? score : -1m
             });
         }
 

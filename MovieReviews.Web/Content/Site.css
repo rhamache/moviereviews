@@ -67,6 +67,10 @@
     transition: box-shadow 1.0s ease-in;
 }
 
+.nolinebreak br {
+    display: none;
+}
+
 .searchBar-brand{
     color: #fff; 
     padding: 14px 0;

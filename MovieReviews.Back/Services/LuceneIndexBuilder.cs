@@ -31,7 +31,7 @@ namespace MovieReviews.Back.Services
         public void BuildIndex(bool fetchMetaData)
         {
             var currentPath = AppDomain.CurrentDomain.BaseDirectory;
-            var resourcePath = Path.Combine(currentPath, "..\\MovieReviews.Back\\Resources");
+            var resourcePath = Path.Combine(currentPath, "Resources");
             var indexDir = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(Path.Combine(resourcePath, "ReviewIndex")));
 
             var positiveReviewPaths = Directory.GetFiles(Path.Combine(resourcePath, "aclImdb\\train\\pos")).OrderBy(n => n).Take(REVIEW_TO_PROCESS_COUNT).ToArray();
@@ -76,12 +76,20 @@ namespace MovieReviews.Back.Services
                 var fldRuntime = new Field("runtime", movie.Runtime, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
                 var fldReleased = new Field("releaseDate", movie.Released, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
                 var fldGenre = new Field("genre", movie.Genre, Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.YES);
+                var fldEpisodeName = new Field("episodeTitle", movie.EpisodeName ?? "", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.YES);
+                var fldImageUrl = new Field("image", movie.Poster, Field.Store.YES, Field.Index.NO, Field.TermVector.NO);
+                var fldCountry = new Field("country", movie.Country, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
+                var fldTotalRating = new Field("overallScore", movie.imdbRating.ToString("G"), Field.Store.YES, Field.Index.NO, Field.TermVector.NO);
 
                 doc.Add(fldImdbId2);
                 doc.Add(fldTitle);
                 doc.Add(fldRuntime);
                 doc.Add(fldReleased);
                 doc.Add(fldGenre);
+                doc.Add(fldEpisodeName);
+                doc.Add(fldImageUrl);
+                doc.Add(fldTotalRating);
+                doc.Add(fldCountry);
             }
 
             doc.Add(fldImdbId);

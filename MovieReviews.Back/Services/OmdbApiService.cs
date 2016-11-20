@@ -21,6 +21,12 @@ namespace MovieReviews.Back.Services
                 {
                     return GetMovie(res.imdbID);
                 }
+                if (res.Type == "episode")
+                {
+                    var seriesResp = client.DownloadString(String.Format("http://www.omdbapi.com/?i={0}", res.seriesID));
+                    res.EpisodeName = res.Title;
+                    res.Title = JsonConvert.DeserializeObject<OmdbMovie>(seriesResp).Title;
+                }
                 return res;
             }
         }

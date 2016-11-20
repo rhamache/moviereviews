@@ -1,9 +1,17 @@
 ﻿<div class="row">
     <div class="col-sm-10 col-sm-offset-1" id="result" data-bind="foreach: results">
         <div class="searchResult well">
-            <h2>Review for "<span data-bind="text: title"></span>"</h2>
-            <div class="review-text" data-bind="html: text"></div>
-            <a data-bind="attr: { href: url }, text: url"></a>
+            <img class="pull-right" data-bind="attr: { src: imageUrl}" style="height: 200px;"/>
+            <h1 data-bind="html: getTitle"></h1>
+
+            <div data-bind="visible: url() !== null && url() !== ''" style="margin: 10px 0;">
+                <a data-bind="attr: { href: url }"><span class="fa fa-link"></span> IMDb</a>
+            </div>
+
+            <span><b>Matched Text:</b></span>
+            <p class="nolinebreak"><em data-bind="html: getFragments"></em></p>
+
+            <button class="btn-link">[Read Full Review]</button>
         </div>
     </div>
 </div>

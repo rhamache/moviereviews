@@ -312,6 +312,10 @@
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <None Include="Properties\PublishProfiles\hamachermoviereviews.pubxml" />
+    <Content Include="Resources\ReviewIndex\segments.gen" />
+    <Content Include="Resources\ReviewIndex\segments_2" />
+    <Content Include="Resources\ReviewIndex\_0.cfs" />
+    <Content Include="Resources\ReviewIndex\_0.cfx" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
