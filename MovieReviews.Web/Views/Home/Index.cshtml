@@ -10,15 +10,15 @@
                         </div>
                     </a>
                 </div>
-                        <div class="col-xs-8">
-                            <div class="input-group searchInput">
-                                <input type="text" class="form-control" data-bind="textInput: searchTerm" />
-                                <span class="input-group-btn">
-                                    <button class="btn btn-secondary" type="submit"><span class="fa fa-search"></span></button>
-                                </span>
-                            </div>
-                        </div>
-
+                <div class="col-xs-8">
+                    <div class="input-group searchInput">
+                        <input type="text" class="form-control" data-bind="textInput: searchTerm" id="searchInput"/>
+                        <div id="autocompleteContainer"></div>
+                        <span class="input-group-btn">
+                            <button class="btn btn-secondary" type="submit"><span class="fa fa-search"></span></button>
+                        </span>
+                    </div>
+                </div>
             }
         </div>
     </div>
@@ -55,12 +55,13 @@
 
 @section Scripts{
     <script type="text/javascript">
-        var vm = new ResultsViewModel("@Url.Action("Index", "Home")");
+        var vm = new ResultsViewModel("@Url.Action("Index", "Home")", "@Url.Action("GetAutoCompleteTerms", "Home")", "searchInput");
         ko.applyBindings(vm);
 
         $(function () {
             // cancel form submission and let knockout vm handle instead
             $("#mainSearchForm").submit(function () {
+                vm.skipAutoComplete = true;
                 vm.setPage(0);
                 return false;
             });

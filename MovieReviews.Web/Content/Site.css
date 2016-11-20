@@ -64,9 +64,10 @@
 .searchBar-inSearch {
     box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px 0px;
     position: fixed;
-    z-index: 9999;
+    z-index: 99;
     background-color: #fff;
     transition: box-shadow 1.0s ease-in;
+    margin: 0 0px;
 }
 
 .nolinebreak br {
@@ -100,6 +101,10 @@ a.disable {
     cursor: default;
 }
 
-.searchResult {
-
+#autocompleteContainer {
+    display: block; 
+    position:relative
+} 
+.ui-autocomplete {
+    position: absolute;
 }

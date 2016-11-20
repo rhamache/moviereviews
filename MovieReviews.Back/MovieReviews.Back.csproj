@@ -107,9 +107,13 @@
     <Compile Include="Model\Review.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceObjects\OmdbMovie.cs" />
+    <Compile Include="Services\IAutoCompleteService.cs" />
     <Compile Include="Services\IIndexBuilder.cs" />
+    <Compile Include="Services\IIndexDirectoryProvider.cs" />
+    <Compile Include="Services\IndexDirectoryProvider.cs" />
     <Compile Include="Services\ISearchService.cs" />
     <Compile Include="Services\IMovieApiService.cs" />
+    <Compile Include="Services\LuceneAutoCompleteService.cs" />
     <Compile Include="Services\LuceneIndexBuilder.cs" />
     <Compile Include="Services\LuceneSearchService.cs" />
     <Compile Include="Services\OmdbApiService.cs" />

@@ -19,20 +19,24 @@ namespace MovieReviews.Back.Services
         private const int REVIEW_TO_PROCESS_COUNT = 2000;
 
         protected IMovieApiService MovieApi { get; private set; }
+        protected IIndexDirectoryProvider IndexDirectoryProvider { get; private set; }
 
-        public LuceneIndexBuilder(IMovieApiService movieApi)
+        public LuceneIndexBuilder(IMovieApiService movieApi, IIndexDirectoryProvider indexDirectoryProvider)
         {
             if (movieApi == null)
                 throw new ArgumentNullException("movieApi");
+            if (indexDirectoryProvider == null)
+                throw new ArgumentNullException("indexDirectoryProvider");
 
             MovieApi = movieApi;
+            IndexDirectoryProvider = indexDirectoryProvider;
         }
 
         public void BuildIndex(bool fetchMetaData)
         {
             var currentPath = AppDomain.CurrentDomain.BaseDirectory;
             var resourcePath = Path.Combine(currentPath, "Resources");
-            var indexDir = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(Path.Combine(resourcePath, "ReviewIndex")));
+            var indexDir = IndexDirectoryProvider.GetIndexDirectory();
 
             var positiveReviewPaths = Directory.GetFiles(Path.Combine(resourcePath, "aclImdb\\train\\pos")).OrderBy(n => n).Take(REVIEW_TO_PROCESS_COUNT).ToArray();
             var negativeReviewPaths = Directory.GetFiles(Path.Combine(resourcePath, "aclImdb\\train\\neg")).OrderBy(n => n).Take(REVIEW_TO_PROCESS_COUNT).ToArray();

@@ -1,6 +1,7 @@
-﻿var ResultsViewModel = function (searchUrl) {
+﻿var ResultsViewModel = function (searchUrl, autoCompleteUrl, inputId) {
     var self = this;
-    self.searchTerm = ko.observable("");
+    self.skipAutoComplete = false;
+    self.searchTerm = ko.observable("").extend({ rateLimit: 500 });;
     self.results = ko.observableArray([]);
     self.page = ko.observable(0);
     self.hits = ko.observable(0);
@@ -9,7 +10,14 @@
         return Math.ceil(self.hits() / 10);
     });
 
+    self.searchTerm.subscribe(function (newVal) {
+        self.setPage(0);
+    });
+
     self.search = function () {
+        // forces autocomplete to hide
+        var auto = $('#' + inputId);
+        auto.autocomplete("option", { source: self.autoCompleteTerms() });
         $.ajax({
             url: searchUrl,
             type: "POST",
@@ -18,6 +26,15 @@
                 page: self.page()
             },
             success: function (resp) {
+                if (!self.skipAutoComplete) {
+                    self.getAutoCompleteTerms(self.searchTerm());
+                } else {
+                    auto.blur();
+                }
+                self.skipAutoComplete = false;
+                if (resp.status === "error")
+                    return;
+
                 $("#resultTerm").text(self.searchTerm());
                 self.hits(resp.hits);
                 self.results.removeAll();
@@ -73,6 +90,35 @@
         $("html, body").animate({ scrollTop: 0 }, 600);
         self.setPage(self.page() + 1);
     }
+
+    self.autoCompleteTerms = ko.observableArray([]);
+    $('#' + inputId).autocomplete({
+        source: self.autoCompleteTerms(),
+        select: function (e, ui) {
+            self.skipAutoComplete = true;
+            self.searchTerm(ui.item.value);
+        },
+        appendTo: "#autocompleteContainer"
+    });
+
+    self.getAutoCompleteTerms = function (term) {
+        $.ajax({
+            method: "POST",
+            url: autoCompleteUrl,
+            data: {
+                searchTerm: self.searchTerm()
+            },
+            success: function (resp) {
+                self.autoCompleteTerms.removeAll();
+                for (var i = 0; i < resp.results.length; i++) {
+                    self.autoCompleteTerms.push(resp.results[i]);
+                }
+                var auto = $('#' + inputId);
+                auto.autocomplete("option", { source: self.autoCompleteTerms() });
+                auto.autocomplete("search");
+            }
+        });
+    };
 }
 
 var searchResult = function (reviewObj) {

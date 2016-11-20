@@ -1,32 +1,26 @@
 ﻿using Lucene.Net.Analysis.Snowball;
-using Lucene.Net.Analysis.Standard;
-using Lucene.Net.Documents;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Search;
 using Lucene.Net.Search.Highlight;
 using Lucene.Net.Store;
 using MovieReviews.Back.Model;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MovieReviews.Back.Services
 {
     public class LuceneSearchService : ISearchService, IDisposable
     {
         protected SnowballAnalyzer SnowballAnalyzer { get; private set; }
-        protected FSDirectory IndexDirectory { get; private set; }
+        protected Directory IndexDirectory { get; private set; }
 
-        public LuceneSearchService()
+        public LuceneSearchService(IIndexDirectoryProvider indexDirectoryProvider)
         {
-            SnowballAnalyzer = new SnowballAnalyzer(Lucene.Net.Util.Version.LUCENE_29, "English");
+            if (indexDirectoryProvider == null)
+                throw new ArgumentNullException("indexDirectoryProvider");
 
-            var currentPath = AppDomain.CurrentDomain.BaseDirectory;
-            var resourcePath = Path.Combine(currentPath, "Resources");
-            IndexDirectory = FSDirectory.Open(new DirectoryInfo(Path.Combine(resourcePath, "ReviewIndex")));
+            SnowballAnalyzer = new SnowballAnalyzer(Lucene.Net.Util.Version.LUCENE_29, "English");
+            IndexDirectory = indexDirectoryProvider.GetIndexDirectory();
         }
 
         public IQueryable<Review> Search(string searchText, int skip, int take, out int totalHits)

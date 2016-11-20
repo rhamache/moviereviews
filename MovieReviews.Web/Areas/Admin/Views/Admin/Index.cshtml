@@ -16,19 +16,33 @@
 
 <button class="btn btn-primary" onclick="importReviews()">Import Review Data</button>
 
+<button class="btn btn-primary" onclick="buildAutoComplete()">Build Autocomplete Index</button>
+
 <script type="text/javascript">
     function importReviews() {
         $.ajax({
             method: "POST",
             url: "@Url.Action("BuildLuceneIndex", "Admin", new { Area = "Admin"})",
             data: {
-                fetchMetaData : $('#fetchMetaData').val()
+                fetchMetaData: $('#fetchMetaData').val()
             },
-            success: function(resp) {
+            success: function (resp) {
                 if (resp.status === "success") {
-                    alert("YES");
+                    alert("Index built successfully.");
                 }
             }
-        })
+        });
+    }
+
+    function buildAutoComplete() {
+        $.ajax({
+            method: "POST",
+            url: "@Url.Action("BuildLuceneAutoCompleteIndex", "Admin", new { Area = "Admin"})",
+            success: function (resp) {
+                if (resp.status === "success") {
+                    alert("Index built successfully.");
+                }
+            }
+        });
     }
 </script>
