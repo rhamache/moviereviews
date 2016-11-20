@@ -11,7 +11,7 @@
     });
 
     self.searchTerm.subscribe(function (newVal) {
-        self.setPage(0);
+        self.setPage(0, false);
     });
 
     self.search = function () {
@@ -41,6 +41,7 @@
                 for (var i = 0; i < resp.results.length; i++) {
                     self.results.push(new searchResult(resp.results[i]));
                 }
+                $('[data-toggle="tooltip"]').tooltip();
             }
         });
     }
@@ -51,7 +52,7 @@
         var end = Math.min(self.totalPages(), start + 10);
 
         if (self.page() != 0) {
-            html += "<button class='btn btn-default' onclick='vm.setPage(" + 0 + ")'><span class='fa fa-angle-double-left'></span></button>";
+            html += "<button class='btn btn-default' onclick='vm.setPage(" + 0 + ", true)'><span class='fa fa-angle-double-left'></span></button>";
             html += "<button class='btn btn-default' onclick='vm.decrementPage()'><span class='fa fa-angle-left'></span></button>";
         }
 
@@ -59,13 +60,13 @@
             if (i == self.page()) {
                 html += "<button class='btn btn-default active'>" + (i + 1) + "</button>";
             } else {
-                html += "<button class='btn btn-default' onclick='vm.setPage(" + i + ")'>" + (i + 1) + "</button>";
+                html += "<button class='btn btn-default' onclick='vm.setPage(" + i + ", true)'>" + (i + 1) + "</button>";
             }
         }
 
         if ((self.page() + 1) < self.totalPages()) {
             html += "<button class='btn btn-default' onclick='vm.incrementPage()'><span class='fa fa-angle-right'></span></button>";
-            html += "<button class='btn btn-default' onclick='vm.setPage(" + (self.totalPages() - 1) + ")'><span class='fa fa-angle-double-right'></span></button>";
+            html += "<button class='btn btn-default' onclick='vm.setPage(" + (self.totalPages() - 1) + ", true)'><span class='fa fa-angle-double-right'></span></button>";
         }
 
         return html;
@@ -75,7 +76,8 @@
         return self.results().length > 0;
     });
 
-    self.setPage = function (i) {
+    self.setPage = function (i, skipauto) {
+        self.skipAutoComplete = skipauto;
         $("html, body").animate({ scrollTop: 0 }, 600);
         self.page(i);
         self.search();
@@ -83,12 +85,12 @@
 
     self.decrementPage = function (i) {
         $("html, body").animate({ scrollTop: 0 }, 600);
-        self.setPage(self.page() - 1);
+        self.setPage(self.page() - 1, true);
     }
 
     self.incrementPage = function (i) {
         $("html, body").animate({ scrollTop: 0 }, 600);
-        self.setPage(self.page() + 1);
+        self.setPage(self.page() + 1, true);
     }
 
     self.autoCompleteTerms = ko.observableArray([]);
@@ -134,6 +136,9 @@ var searchResult = function (reviewObj) {
     self.imdbId = ko.observable(reviewObj.Movie.ImdbId);
     self.matchText = ko.observableArray(reviewObj.MatchedFragments);
     self.imageUrl = ko.observable(reviewObj.Movie.ImageUrl);
+    self.id = ko.observable(reviewObj.Id);
+    self.isOpen = ko.observable(false);
+    self.score = ko.observable(reviewObj.Score);
 
     self.getTitle = ko.computed(function () {
         var title = self.title();
@@ -150,4 +155,17 @@ var searchResult = function (reviewObj) {
         }
         return html;
     });
+
+    self.imageError = function (a,b,c) {
+        self.imageUrl("/Content/notfound.jpg");
+    }
+
+    self.toggleReview = function () {
+        self.isOpen(!self.isOpen());
+        $("#" + self.id()).slideToggle();
+    }
+
+    self.moreLinkText = ko.computed(function () {
+        return self.isOpen() ? "[Collapse]" : "[Read Full Review]";
+    })
 }

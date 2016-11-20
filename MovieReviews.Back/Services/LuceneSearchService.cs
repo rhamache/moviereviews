@@ -43,6 +43,7 @@ namespace MovieReviews.Back.Services
             decimal score, overall;
             return reviewDocs.AsQueryable().Select(doc => new Review
             {
+                Id = Guid.NewGuid(),
                 Url = doc.GetField("url").StringValue,
                 Text = nullHighlighter.GetBestFragment(SnowballAnalyzer, "text", doc.GetField("text").StringValue) ?? doc.GetField("text").StringValue,
                 Movie = new MovieShow

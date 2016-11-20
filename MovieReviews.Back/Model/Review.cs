@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MovieReviews.Back.Model
 {
     public class Review
     {
+        public Guid Id { get; set; }
         public MovieShow Movie { get; set; }
         public string Text { get; set; }
         public string Url { get; set; }

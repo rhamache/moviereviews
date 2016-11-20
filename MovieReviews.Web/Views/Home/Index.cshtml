@@ -32,17 +32,41 @@
 <div class="row">
     <div class="col-sm-10 col-sm-offset-1"  data-bind="foreach: results">
         <div class="searchResult well">
-            <img class="pull-right" data-bind="attr: { src: imageUrl}" style="height: 200px;"/>
-            <h1 data-bind="html: getTitle"></h1>
+            <div class="row">
+                <div class="col-xs-12 col-sm-2">
+                    <img data-bind="attr: { src: imageUrl}, event: {error: imageError}" class="movieImage" onerror="imgError()" />
+                </div>
+                <div class="col-xs-12 col-sm-10">
+                    <h1 data-bind="html: getTitle"></h1>
 
-            <div data-bind="visible: url() !== null && url() !== ''" style="margin: 10px 0;">
-                <a data-bind="attr: { href: url }"><span class="fa fa-link"></span> IMDb</a>
+                    <span class="score" data-bind="attr: {title: $data.score() + '/10'}" data-toggle="tooltip">
+                        <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 1 }"></span>
+                        <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 2 }"></span>
+                        <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 3 }"></span>
+                        <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 4 }"></span>
+                        <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 5 }"></span>
+                        <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 6 }"></span>
+                        <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 7 }"></span>
+                        <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 8 }"></span>
+                        <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 9 }"></span>
+                        <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 10 }"></span>
+                    </span>
+
+                    <div data-bind="visible: url() !== null && url() !== ''" style="margin: 10px 0;">
+                        <a data-bind="attr: { href: url }"><span class="fa fa-link"></span> IMDb</a>
+                    </div>
+
+                    <span><b>Matched Text:</b></span>
+                    <p class="nolinebreak"><em data-bind="html: getFragments"></em></p>
+
+                    <button class="btn-link" data-bind="click: toggleReview, text: moreLinkText">[Read Full Review]</button>
+                </div>
             </div>
-
-            <span><b>Matched Text:</b></span>
-            <p class="nolinebreak"><em data-bind="html: getFragments"></em></p>
-
-            <button class="btn-link">[Read Full Review]</button>
+            <div class="row">
+                <div class="col-xs-12 col-sm-10 col-sm-offset-2 fulltext" data-bind="attr: {id: id}" style="display: none;">
+                    <span data-bind="html: text"></span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -61,10 +85,9 @@
         $(function () {
             // cancel form submission and let knockout vm handle instead
             $("#mainSearchForm").submit(function () {
-                vm.skipAutoComplete = true;
-                vm.setPage(0);
+                vm.setPage(0, true);
                 return false;
             });
-        })
+        });
     </script>
 }

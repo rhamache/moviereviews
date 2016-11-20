@@ -108,3 +108,31 @@ a.disable {
 .ui-autocomplete {
     position: absolute;
 }
+.movieImage {
+    max-width: 100%;
+}
+
+.fulltext {
+    margin-top: 10px;
+}
+
+.score .fa-star {
+    color: #cbcdcd;
+}
+
+.score .filled {
+    color: #333;
+}
+
+.score:hover {
+    cursor: pointer;
+}
+
+.tooltip-inner {
+    font-size: 2em;
+    padding: 10px;
+    color: #333;
+    background-color: #eee;
+    border: 1px solid #333;
+    opacity: 1;
+}
