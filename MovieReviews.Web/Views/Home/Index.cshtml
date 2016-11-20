@@ -1,7 +1,7 @@
 ﻿<div class="row">
     <div class="col-sm-10 col-sm-offset-1" id="result" data-bind="foreach: results">
-        <div class="searchResult">
-            <h2 data-bind="text: title"></h2>
+        <div class="searchResult well">
+            <h2>Review for "<span data-bind="text: title"></span>"</h2>
             <div class="review-text" data-bind="html: text"></div>
             <a data-bind="attr: { href: url }, text: url"></a>
         </div>

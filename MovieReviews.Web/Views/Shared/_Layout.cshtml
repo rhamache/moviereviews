@@ -14,24 +14,30 @@
         <h1 class="main-header">Film &amp; Show Reviews <span class="fa fa-film" aria-hidden="true"></span></h1>
         <h4>Search thousands of user reviews from <a href="http://www.imdb.com/">IMDb</a></h4>
     </div>
-    <div class="searchBar" data-bind="css: { 'searchBar-inSearch': hasResults }">
-        @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @class = "form-horizontal", id = "mainSearchForm" }))
-        {
-            <a href="/" data-bind="css: { 'disable': !$data.hasResults() }">
-                <div class="pull-left searchBar-brand" data-bind="css: { 'show-brand': hasResults }">
-                    <span class="fa fa-film"></span>
-                </div>
-            </a>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="searchBar" data-bind="css: { 'searchBar-inSearch': hasResults }">
+            @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @class = "form-horizontal", id = "mainSearchForm" }))
+            {
+                    <div class="col-xs-2" style="padding-left: 0;">
+                        <a href="/" data-bind="css: { 'disable': !$data.hasResults() }">
+                            <div class="searchBar-brand" data-bind="css: { 'show-brand': hasResults }">
+                                <span class="fa fa-film"></span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-xs-8">
+                        <div class="input-group searchInput">
+                            <input type="text" class="form-control" data-bind="textInput: searchTerm" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary" data-bind="click: search"><span class="fa fa-search"></span></button>
+                            </span>
+                        </div>
+                    </div>
 
-            <div class="col-sm-8 col-sm-offset-2">
-                <div class="input-group searchInput">
-                    <input type="text" class="form-control" data-bind="textInput: searchTerm" />
-                    <span class="input-group-btn">
-                        <button class="btn btn-secondary" data-bind="click: search"><span class="fa fa-search"></span></button>
-                    </span>
-                </div>
+                }
             </div>
-        }
+        </div>
     </div>
     <div class="container body-content">
         @RenderBody()
