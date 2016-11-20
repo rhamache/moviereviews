@@ -29,15 +29,16 @@ namespace MovieReviews.Back.Services
             IndexDirectory = FSDirectory.Open(new DirectoryInfo(Path.Combine(resourcePath, "ReviewIndex")));
         }
 
-        public IQueryable<Review> Search(string searchText)
+        public IQueryable<Review> Search(string searchText, int skip, int take, out int totalHits)
         {
             var multiParser = new MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_29,new[] { "text", "imdbId", "title", "genre", "episodeTitle" }, SnowballAnalyzer);
 
             var query = multiParser.Parse(searchText);
             var reviewSearcher = new IndexSearcher(IndexDirectory);
 
-            var hits = reviewSearcher.Search(query, 10);
-            var reviewDocs = hits.ScoreDocs.Select(sc => reviewSearcher.Doc(sc.Doc));
+            var hits = reviewSearcher.Search(query, 5000);
+            var reviewDocs = hits.ScoreDocs.Skip(skip).Take(take).Select(sc => reviewSearcher.Doc(sc.Doc));
+            totalHits = hits.TotalHits;
 
             var scorer = new QueryScorer(query);
             var highlighter = new Highlighter(scorer);

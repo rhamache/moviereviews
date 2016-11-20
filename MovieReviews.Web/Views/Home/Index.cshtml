@@ -1,5 +1,36 @@
-﻿<div class="row">
-    <div class="col-sm-10 col-sm-offset-1" id="result" data-bind="foreach: results">
+﻿@section Header{
+    <div class="row">
+        <div class="searchBar" data-bind="css: { 'searchBar-inSearch': hasResults }">
+            @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @class = "form-horizontal", id = "mainSearchForm" }))
+            {
+                <div class="col-xs-2" style="padding-left: 0;">
+                    <a href="/" data-bind="css: { 'disable': !$data.hasResults() }">
+                        <div class="searchBar-brand" data-bind="css: { 'show-brand': hasResults }">
+                            <span class="fa fa-film"></span>
+                        </div>
+                    </a>
+                </div>
+                        <div class="col-xs-8">
+                            <div class="input-group searchInput">
+                                <input type="text" class="form-control" data-bind="textInput: searchTerm" />
+                                <span class="input-group-btn">
+                                    <button class="btn btn-secondary" type="submit"><span class="fa fa-search"></span></button>
+                                </span>
+                            </div>
+                        </div>
+
+            }
+        </div>
+    </div>
+}
+<div class="row" id="result">
+    <div class="col-sm-10 col-sm-offset-1" data-bind="visible: hasResults">
+        <b><span data-bind="text: hits"></span> results returned for "<span id='resultTerm'></span>"</b>
+        <small>(Page <span data-bind="text: page() + 1"></span> of <span data-bind="text: totalPages"></span>)</small>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-10 col-sm-offset-1"  data-bind="foreach: results">
         <div class="searchResult well">
             <img class="pull-right" data-bind="attr: { src: imageUrl}" style="height: 200px;"/>
             <h1 data-bind="html: getTitle"></h1>
@@ -15,6 +46,12 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="col-xs-12 text-center">
+        <div class="btn-group" data-bind="html: pagerHtml">
+        </div>
+    </div>
+</div>
 
 @section Scripts{
     <script type="text/javascript">
@@ -24,7 +61,7 @@
         $(function () {
             // cancel form submission and let knockout vm handle instead
             $("#mainSearchForm").submit(function () {
-                vm.search();
+                vm.setPage(0);
                 return false;
             });
         })

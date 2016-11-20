@@ -3,10 +3,12 @@
     ViewBag.Title = "Admin Panel";
 }
 
-<h2>@ViewBag.Title</h2>
+@section Header{
+<h2 class="text-center">@ViewBag.Title</h2>
+}
 
 <div class="row">
-    @Html.Label("Fetch Metadata from OMDB API", new { @class ="col-sm-4" })
+    @Html.Label("Fetch Metadata from OMDB API", new { @class = "col-sm-4" })
     <div class="col-sm-8">
         @Html.CheckBox("fetchMetaData")
     </div>

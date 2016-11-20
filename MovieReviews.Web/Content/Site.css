@@ -56,7 +56,9 @@
 }
 
 #result {
+    font-size: 1.6em;
     margin-top: 100px;
+    margin-bottom: 8px;
 }
 
 .searchBar-inSearch {

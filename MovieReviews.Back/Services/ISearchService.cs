@@ -13,6 +13,7 @@ namespace MovieReviews.Back.Services
         /// Searches the index for the given text
         /// </summary>
         /// <param name="searchText">The search text</param>
-        IQueryable<Review> Search(string searchText);
+        /// <param name="hitCount">The number of results will be returned in this variable</param>
+        IQueryable<Review> Search(string searchText, int skip, int take, out int hitCount);
     }
 }

@@ -15,15 +15,16 @@ namespace MovieReviews.Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult Index(string searchTerm)
+        public JsonResult Index(string searchTerm, int page)
         {
             using (var searchService = new LuceneSearchService())
             {
                 if (String.IsNullOrWhiteSpace(searchTerm))
                     return Json(new { results = new Review[] { } });
 
-                var results = searchService.Search(searchTerm).ToList();
-                return Json(new { results });
+                int hits;
+                var results = searchService.Search(searchTerm, page * 10, 10, out hits).ToList();
+                return Json(new { results, hits });
             }
         }
     }
