@@ -8,7 +8,7 @@ The data is indexed and searched using [Lucene.net](https://lucenenet.apache.org
 
 ## Running the App
 
-To run, download the repo and open the app in Visual Studio. The app should run after restoring nuget packages. The app is also hosted at [http://hamachermoviereviews.azurewebsites.net/](http://hamachermoviereviews.azurewebsites.net/) for convenience.
+To run, download the repo and open the app in Visual Studio. The app should run after restoring nuget packages. The app is also hosted at [http://hamachermoviereviews.azurewebsites.net/](http://hamachermoviereviews.azurewebsites.net/) for convenience, as I some free Azure hosting available to me.
 
 
 ## Building the index
@@ -26,18 +26,18 @@ When viewing results note that only the matched sentences are shown. To view the
 ### Advanced Features
 
 + Stemming
-..+ Steming was implemented by building and searching the index with a Lucene SnowballAnalyzer. Some examples
-+++ "dumping", results that match on "dumped" are returned
-+++ "assessment", results that match on "assessed" and "assessing" are returned
+    + Steming was implemented by building and searching the index with a Lucene SnowballAnalyzer. Some examples
+        + "dumping", results that match on "dumped" are returned
+        + "assessment", results that match on "assessed" and "assessing" are returned
 + Spellchecking
-++ Spelling suggestions are shown, if and only if you search for a term that doesn't return any results
-+++ ex: search for "soldeir"
+    + Spelling suggestions are shown, if and only if you search for a term that doesn't return any results
+        + ex: search for "soldeir"
 + Related search terms
-++ NOT IMPLEMENTED
+    + NOT IMPLEMENTED
 + Autocomplete
-++ As you type, a dropdown will appear with autocomplete suggestions
+    + As you type, a dropdown will appear with autocomplete suggestions
 + Filtering
-++ There is only one filter included for filtering reviews by score. It is accessed on the left hand side of the screen
+    + There is only one filter included for filtering reviews by score. It is accessed on the left hand side of the screen
 
 Other features not mentioned in the original task
 
@@ -45,6 +45,20 @@ Other features not mentioned in the original task
 ++ Results are split into pages of 10 results per page (not configurable)
 + Integration with [OMDb API](https://www.omdbapi.com/)
 ++ Addtional movie/show metadata was pulled when the index was built to provide movie posters and release dates
++ Responsive design
+++ I spent a little bit of time testing with my iPhone to ensure everything looks okay on mobile
+
+## Third Party Libraries Used
+
++ jQuery
++ jQuery UI
++ Bootstrap 3
++ Lucene.net
++ Font awesome
++ Newtonsoft.Json
++ Knockout.js
++ Moment.js
++ Autofac
 
 ## Brief Infrastructure Description
 
@@ -61,3 +75,4 @@ The LuceneAutoCompleteService provides autocomplete suggestions and spell checki
 + Writing custom knockout bindings for the jQuery UI autocomplete and selectmenu widgets would be an improvement. For now, when the autocomplete suggestions are returned from the server, I refresh the widget's datasource manually and reopen the dropdown. For the filter dropdowns, I used the widgets change event to manually update the knockout vm, which is not a good pattern
 + You will often see 403 errors in the console relating to images. This is because some of the image urls I pulled from OMDb API are not permitted to be accessed from another domain
 + There is no user authentication at all. So the admin panel at ~/Admin/Admin is publically accessable. This would definitely need to be added in a real application. We have a user/identity framework at my current job, so I chose to take it out as I wasn't familiar with the default ASP.NET authentication framework. Luckily, there isn't any real damage that can be done, as attempting to rebuild any of the indexes will just result in an error on the live site (the raw data has not been uploaded to azure)
++ As I was working alone, I chose to just commit everything to master. I know that when working with a team a proper branching, pull request and code review workflow should be followed
