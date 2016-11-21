@@ -26,7 +26,7 @@ When viewing results note that only the matched sentences are shown. To view the
 ### Advanced Features
 
 + Stemming
-++ Steming was implemented by building and searching the index with a Lucene SnowballAnalyzer. Some examples
+..+ Steming was implemented by building and searching the index with a Lucene SnowballAnalyzer. Some examples
 +++ "dumping", results that match on "dumped" are returned
 +++ "assessment", results that match on "assessed" and "assessing" are returned
 + Spellchecking
