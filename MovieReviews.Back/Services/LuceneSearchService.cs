@@ -56,7 +56,6 @@ namespace MovieReviews.Back.Services
 
             nullHighlighter.TextFragmenter = new NullFragmenter();
             decimal score, overall;
-            DateTime release; 
             return reviewDocs.AsQueryable().Select(doc => new Review
             {
                 Id = Guid.NewGuid(),
