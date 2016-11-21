@@ -136,3 +136,11 @@ a.disable {
     border: 1px solid #333;
     opacity: 1;
 }
+
+.input-sm {
+    height: 20px;
+}
+
+.ui-selectmenu-button {
+    max-width: 100%;
+}

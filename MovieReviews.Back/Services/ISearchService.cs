@@ -15,7 +15,9 @@ namespace MovieReviews.Back.Services
         /// <param name="searchText">The search text</param>
         /// <param name="skip">The number of results to skip</param>
         /// <param name="take">The number of results to return</param>
+        /// <param name="scoreMin">The minimum review score to be included in results</param>
+        /// <param name="scoreMax">The maximum review score to be included in results</param>
         /// <param name="hitCount">The number of results will be returned in this variable</param>
-        IQueryable<Review> Search(string searchText, int skip, int take, out int hitCount);
+        IQueryable<Review> Search(string searchText, int skip, int take, int scoreMin, int scoreMax, out int hitCount);
     }
 }

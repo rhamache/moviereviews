@@ -42,5 +42,12 @@ namespace MovieReviews.Web.Areas.Admin.Controllers
             AutoCompleteService.BuildAutoCompleteIndex(new[] {"text", "title"});
             return Json(new { status = "success" });
         }
+
+        [HttpPost]
+        public JsonResult BuildSpellCheckIndex()
+        {
+            AutoCompleteService.BuildSpellCheckIndex();
+            return Json(new { status = "success" });
+        }
     }
 }

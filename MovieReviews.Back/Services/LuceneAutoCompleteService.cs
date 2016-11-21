@@ -61,6 +61,8 @@ namespace MovieReviews.Back.Services
 
         private readonly Directory _sourceDirectory;
         private readonly Directory _directory;
+        private readonly Directory _spellCheckDirectory;
+        private readonly System.IO.FileInfo _dictFile;
 
         private IndexReader _reader;
 
@@ -73,23 +75,36 @@ namespace MovieReviews.Back.Services
 
             _directory = indexDirectoryProvider.GetAutocompleteIndexDirectory();
             _sourceDirectory = indexDirectoryProvider.GetIndexDirectory();
+            _spellCheckDirectory = indexDirectoryProvider.GetSpellCheckIndexDirectory();
+            _dictFile = indexDirectoryProvider.GetSpellCheckDictionaryFileInfo();
             MaxResults = MAX_RESULTS;
 
             ReplaceSearcher();
         }
 
-        public IEnumerable<String> SuggestTermsFor(string term)
+        public IEnumerable<string> SuggestTermsFor(string term)
         {
             if (_searcher == null)
                 return new string[] { };
 
             // get the top terms for query
             Query query = new TermQuery(new Term(kGrammedWordsField, term.ToLower()));
-            Sort sort = new Sort(new SortField(kCountField, SortField.INT));
+            Sort sort = new Sort(new SortField(kCountField, SortField.INT, true));
 
             TopDocs docs = _searcher.Search(query, null, MaxResults, sort);
             string[] suggestions = docs.ScoreDocs.Select(doc =>
                 _reader.Document(doc.Doc).Get(kSourceWordField)).ToArray();
+
+            return suggestions;
+        }
+
+        public IEnumerable<string> SpellCheck(string term)
+        {
+            if (_searcher == null)
+                return new string[] { };
+
+            var spellChecker = new SpellChecker.Net.Search.Spell.SpellChecker(_spellCheckDirectory);
+            string[] suggestions = spellChecker.SuggestSimilar(term, MaxResults);
 
             return suggestions;
         }
@@ -136,6 +151,16 @@ namespace MovieReviews.Back.Services
             }
         }
 
+        public void BuildSpellCheckIndex()
+        {
+            using (IndexReader sourceReader = IndexReader.Open(_sourceDirectory, true))
+            {
+                var spellChecker = new SpellChecker.Net.Search.Spell.SpellChecker(_spellCheckDirectory);
+                var dict = new LuceneDictionary(sourceReader, "text");
+                spellChecker.IndexDictionary(dict);
+            }
+        }
+
         private static Document MakeDocument(string word, int frequency)
         {
             var doc = new Document();
@@ -144,7 +169,7 @@ namespace MovieReviews.Back.Services
             doc.Add(new Field(kGrammedWordsField, word, Field.Store.YES,
                     Field.Index.ANALYZED)); // grammed
             doc.Add(new Field(kCountField,
-                    frequency.ToString(), Field.Store.NO,
+                    frequency.ToString(), Field.Store.YES,
                     Field.Index.NOT_ANALYZED)); // count
             return doc;
         }

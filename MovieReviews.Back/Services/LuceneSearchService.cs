@@ -1,4 +1,5 @@
 ﻿using Lucene.Net.Analysis.Snowball;
+using Lucene.Net.Documents;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Search;
 using Lucene.Net.Search.Highlight;
@@ -23,15 +24,27 @@ namespace MovieReviews.Back.Services
             IndexDirectory = indexDirectoryProvider.GetIndexDirectory();
         }
 
-        public IQueryable<Review> Search(string searchText, int skip, int take, out int totalHits)
+        public IQueryable<Review> Search(string searchText, int skip, int take, int scoreMin, int scoreMax, out int totalHits)
         {
-            var multiParser = new MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_29,new[] { "text", "imdbId", "title", "genre", "episodeTitle" }, SnowballAnalyzer);
+            var multiParser = new MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_29,new[] { "text", "genre", "score" }, SnowballAnalyzer);
+            var titleParser = new MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_29, new[] { "title", "episodeTitle" }, SnowballAnalyzer);
 
-            var query = multiParser.Parse(searchText);
+            var multiQuery = multiParser.Parse(searchText);
+            var titleQuery = titleParser.Parse(searchText);
+
+            var filter = NumericRangeFilter.NewIntRange("score", scoreMin, scoreMax, true, true);
+
+            titleQuery.Boost = 0.8f;
+            multiQuery.Boost = 0.2f;
+
+            var query = new BooleanQuery();
+            query.Add(multiQuery, Occur.SHOULD);
+            query.Add(titleQuery, Occur.SHOULD);
+
             var reviewSearcher = new IndexSearcher(IndexDirectory);
 
-            var hits = reviewSearcher.Search(query, 5000);
-            var reviewDocs = hits.ScoreDocs.Skip(skip).Take(take).Select(sc => reviewSearcher.Doc(sc.Doc));
+            var hits = reviewSearcher.Search(query, filter, 10000);
+            var reviewDocs = hits.ScoreDocs.Skip(skip).Take(take).Select(sc => reviewSearcher.Doc(sc.Doc)).ToList();
             totalHits = hits.TotalHits;
 
             var scorer = new QueryScorer(query);
@@ -39,8 +52,11 @@ namespace MovieReviews.Back.Services
 
             // null highlighter will return the ENTIRE field with relevant terms highlighted
             var nullHighlighter = new Highlighter(scorer);
+
+
             nullHighlighter.TextFragmenter = new NullFragmenter();
             decimal score, overall;
+            DateTime release; 
             return reviewDocs.AsQueryable().Select(doc => new Review
             {
                 Id = Guid.NewGuid(),
@@ -52,13 +68,15 @@ namespace MovieReviews.Back.Services
                     ImdbId = nullHighlighter.GetBestFragment(SnowballAnalyzer, "imdbId", doc.GetField("imdbId").StringValue) ?? doc.GetField("imdbId").StringValue,
                     Genre = nullHighlighter.GetBestFragment(SnowballAnalyzer, "genre", doc.GetField("genre").StringValue) ?? doc.GetField("genre").StringValue,
                     RunningTime = doc.GetField("runtime").StringValue,
-                    ReleaseDate = doc.GetField("releaseDate").StringValue,
+                    ReleaseDate = doc.GetField("releaseDate").StringValue != "N/A" ? DateTools.StringToDate(doc.GetField("releaseDate").StringValue) : (DateTime?) null,
                     EpisodeName = nullHighlighter.GetBestFragment(SnowballAnalyzer, "episodeTitle", doc.GetField("episodeTitle").StringValue) ?? doc.GetField("episodeTitle").StringValue,
                     OverallScore = decimal.TryParse(doc.GetField("overallScore").StringValue, out overall) ? overall : -1m,
                     Country = doc.GetField("country").StringValue,
                     ImageUrl = doc.GetField("image").StringValue
                 },
-                MatchedFragments = highlighter.GetBestFragments(SnowballAnalyzer, "text", doc.GetField("text").StringValue, 5),
+                MatchedFragments = highlighter.GetBestFragments(SnowballAnalyzer, "text", doc.GetField("text").StringValue, 5)
+                    .Concat(highlighter.GetBestFragments(SnowballAnalyzer, "title", doc.GetField("title").StringValue, 5))
+                    .Concat(highlighter.GetBestFragments(SnowballAnalyzer, "episodeTitle", doc.GetField("episodeTitle").StringValue, 5)),
                 Score = decimal.TryParse(doc.GetField("score").StringValue, out score) ? score : -1m
             });
         }

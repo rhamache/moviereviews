@@ -26,5 +26,16 @@ namespace MovieReviews.Back.Services
             var dir = System.IO.Path.Combine(_indexPath, "AutoCompleteIndex");
             return FSDirectory.Open(new System.IO.DirectoryInfo(dir));
         }
+
+        public Directory GetSpellCheckIndexDirectory()
+        {
+            var dir = System.IO.Path.Combine(_indexPath, "SpellCheckIndex");
+            return FSDirectory.Open(new System.IO.DirectoryInfo(dir));
+        }
+
+        public System.IO.FileInfo GetSpellCheckDictionaryFileInfo()
+        {
+            return new System.IO.FileInfo(System.IO.Path.Combine(_indexPath, "dictionary.txt"));
+        }
     }
 }

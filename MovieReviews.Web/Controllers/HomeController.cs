@@ -1,5 +1,6 @@
 ﻿using MovieReviews.Back.Model;
 using MovieReviews.Back.Services;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,18 +30,20 @@ namespace MovieReviews.Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult Index(string searchTerm, int page)
+        public JsonResult Index(string searchTerm, int page, int? scoreMin, int? scoreMax)
         {
             using (var searchService = new LuceneSearchService(IndexDirectoryProvider))
             {
                 if (String.IsNullOrWhiteSpace(searchTerm))
-                    return Json(new { results = new Review[] { } });
+                    return Json(new { results = new Review[] { }, spelling = new string[] { } });
 
                 int hits;
                 try
                 {
-                    var results = searchService.Search(searchTerm, page * 10, 10, out hits).ToList();
-                    return Json(new { results, hits, status = "success" });
+                    var spellingSuggestions = AutoCompleteService.SpellCheck(searchTerm);
+
+                    var results = searchService.Search(searchTerm, page * 10, 10, scoreMin.GetValueOrDefault(0), scoreMax.GetValueOrDefault(10), out hits).ToList();
+                    return Json(new { results, hits, status = "success", spelling = spellingSuggestions });
                 }
                 catch (Exception)
                 {

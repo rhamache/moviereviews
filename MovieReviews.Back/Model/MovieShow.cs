@@ -1,4 +1,6 @@
-﻿namespace MovieReviews.Back.Model
+﻿using System;
+
+namespace MovieReviews.Back.Model
 {
     public class MovieShow
     {
@@ -7,7 +9,7 @@
         public string ImdbId { get; set; }
         public string Genre { get; set; }
         public string RunningTime { get; set; }
-        public string ReleaseDate { get; set; }
+        public DateTime? ReleaseDate { get; set; }
         public string ImageUrl { get; set; }
         public string Country { get; set; }
         public decimal OverallScore { get; set; }

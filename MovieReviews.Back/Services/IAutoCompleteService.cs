@@ -1,5 +1,6 @@
 ﻿using Lucene.Net.Store;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MovieReviews.Back.Services
 {
@@ -17,5 +18,9 @@ namespace MovieReviews.Back.Services
         /// <param name="sourceDirectory">Directory containing the index to count words in.</param>
         /// <param name="fieldToAutocomplete">The fields in the index that should be analyzed.</param>
         void BuildAutoCompleteIndex(string[] fieldsToAutocomplete);
+
+        IEnumerable<string> SpellCheck(string term);
+
+        void BuildSpellCheckIndex();
     }
 }

@@ -18,6 +18,8 @@
 
 <button class="btn btn-primary" onclick="buildAutoComplete()">Build Autocomplete Index</button>
 
+<button class="btn btn-primary" onclick="buildSpellCheck()">Build Spellcheck Index</button>
+
 <script type="text/javascript">
     function importReviews() {
         $.ajax({
@@ -38,6 +40,18 @@
         $.ajax({
             method: "POST",
             url: "@Url.Action("BuildLuceneAutoCompleteIndex", "Admin", new { Area = "Admin"})",
+            success: function (resp) {
+                if (resp.status === "success") {
+                    alert("Index built successfully.");
+                }
+            }
+        });
+    }
+
+    function buildSpellCheck() {
+        $.ajax({
+            method: "POST",
+            url: "@Url.Action("BuildSpellCheckIndex", "Admin", new { Area = "Admin"})",
             success: function (resp) {
                 if (resp.status === "success") {
                     alert("Index built successfully.");

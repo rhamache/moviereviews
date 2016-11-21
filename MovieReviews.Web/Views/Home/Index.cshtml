@@ -4,7 +4,7 @@
             @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @class = "form-horizontal", id = "mainSearchForm" }))
             {
                 <div class="col-xs-2" style="padding-left: 0;">
-                    <a href="/" data-bind="css: { 'disable': !$data.hasResults() }">
+                    <a href="/" id="brandLnk" data-bind="css: { 'disable': !$data.hasResults() }">
                         <div class="searchBar-brand" data-bind="css: { 'show-brand': hasResults }">
                             <span class="fa fa-film"></span>
                         </div>
@@ -24,20 +24,74 @@
     </div>
 }
 <div class="row" id="result">
-    <div class="col-sm-10 col-sm-offset-1" data-bind="visible: hasResults">
+    <div class="col-sm-10 col-sm-offset-1 text-center" data-bind="visible: hasResults">
         <b><span data-bind="text: hits"></span> results returned for "<span id='resultTerm'></span>"</b>
         <small>(Page <span data-bind="text: page() + 1"></span> of <span data-bind="text: totalPages"></span>)</small>
     </div>
+    <div class="col-sm-10 col-sm-offset-1" data-bind="visible: !$data.hasResults() && $data.hasSpellingSuggestions()">
+        <b>0 results returned</b>
+        <div>
+            <h2><small>Did you mean?</small></h2>
+            <div data-bind="foreach: spellingSuggestions">
+                <small><button data-bind="text: $data, click: function () {$parent.searchTerm($data);}" class="btn-link"></button></small>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-10 col-sm-offset-1" data-bind="visible: !$data.hasResults() && !$data.hasSpellingSuggestions() && $data.searchTerm() !== ''">
+        <b>0 results returned</b>
+    </div>
 </div>
-<div class="row">
-    <div class="col-sm-10 col-sm-offset-1"  data-bind="foreach: results">
+<div class="row" data-bind="visible: showFilter">
+    <div class="col-sm-2">
+        <div class="well">
+            <h4 class="text-center">Score Filter</h4>
+            <small><button class="btn-link" id="filterToggleBtn">[Show]</button></small>
+            <small><button class="btn-link" onclick="clearFilters()">[Clear]</button></small>
+            <div style="display: none;" id="filters">
+                <div>
+                    <label for="dropdownMin"><small>Only show reviews with scores greater than:</small></label>
+                    <select name="dropdownMin" id="dropdownMin">
+                        <option selected="selected">0</option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="dropdownMax"><small>And less than:</small></label>
+                    <select name="dropdownMax" id="dropdownMax">
+                        <option>0</option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option selected="selected">10</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-8"  data-bind="foreach: results">
         <div class="searchResult well">
             <div class="row">
                 <div class="col-xs-12 col-sm-2">
-                    <img data-bind="attr: { src: imageUrl}, event: {error: imageError}" class="movieImage" onerror="imgError()" />
+                    <img data-bind="attr: { src: imageUrl}, event: {error: imageError}" class="movieImage" />
                 </div>
                 <div class="col-xs-12 col-sm-10">
                     <h1 data-bind="html: getTitle"></h1>
+                    <h4><small data-bind="text: 'Released: ' + $data.releaseDate()"></small></h4>
 
                     <span class="score" data-bind="attr: {title: $data.score() + '/10'}" data-toggle="tooltip">
                         <span class="fa fa-star" data-bind="css: { filled: $data.score() >= 1 }"></span>
@@ -88,6 +142,56 @@
                 vm.setPage(0, true);
                 return false;
             });
+
+            $("#spinnerMin").spinner({
+                min: 0,
+                max: 10,
+                step: 1
+            });
+
+            $("#spinnerMax").spinner({
+                min: 0,
+                max: 10,
+                step: 1
+            });
+
+            $("#dropdownMin").selectmenu({
+                change: function (event, ui) {
+                    vm.filterMin(+ui.item.value);
+                }
+            });
+            $("#dropdownMax").selectmenu({
+                change: function (event, ui) {
+                    vm.filterMax(+ui.item.value);
+                }
+            });
+
+            $("#filterToggleBtn").click(function () {
+                var $btn = $("#filterToggleBtn");
+                if ($btn.text() === "[Show]") {
+                    $btn.text("[Hide]");
+                } else {
+                    $btn.text("[Show]");
+                }
+                $('#filters').slideToggle();
+            });
+
+            $("#brandLnk").click(function () {
+                return vm.hasResults();
+            });
         });
+
+        function clearFilters() {
+            $('#dropdownMin').val('0');
+            $("#dropdownMin").selectmenu("refresh");
+
+            $('#dropdownMax').val('10');
+            $("#dropdownMax").selectmenu("refresh");
+
+            vm.filterMax(null);
+            vm.filterMin(null);
+            vm.skipAutoComplete = true;
+            vm.search();
+        }
     </script>
 }

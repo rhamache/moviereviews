@@ -5,6 +5,8 @@
     self.results = ko.observableArray([]);
     self.page = ko.observable(0);
     self.hits = ko.observable(0);
+    self.filterMax = ko.observable(null);
+    self.filterMin = ko.observable(null);
 
     self.totalPages = ko.computed(function () {
         return Math.ceil(self.hits() / 10);
@@ -12,6 +14,26 @@
 
     self.searchTerm.subscribe(function (newVal) {
         self.setPage(0, false);
+    });
+
+    self.filterMax.subscribe(function (newVal) {
+        if (newVal !== null && self.filterMin() !== null && newVal < self.filterMin()) {
+            alert("Can not set the minimum less than the maximum.")
+            return;
+        }
+
+        if (newVal !== null)
+            self.setPage(0, true);
+    });
+
+    self.filterMin.subscribe(function (newVal) {
+        if (newVal !== null && self.filterMax() !== null && newVal > self.filterMax()) {
+            alert("Can not set the maximum greater than the minimum.")
+            return;
+        }
+
+        if (newVal !== null)
+            self.setPage(0, true);
     });
 
     self.search = function () {
@@ -23,7 +45,9 @@
             type: "POST",
             data: {
                 searchTerm: self.searchTerm(),
-                page: self.page()
+                page: self.page(),
+                scoreMin: self.filterMin(),
+                scoreMax: self.filterMax()
             },
             success: function (resp) {
                 if (!self.skipAutoComplete) {
@@ -40,6 +64,22 @@
                 self.results.removeAll();
                 for (var i = 0; i < resp.results.length; i++) {
                     self.results.push(new searchResult(resp.results[i]));
+                }
+                if (resp.results.length === 0) {
+                    self.spellingSuggestions.removeAll();
+                    for (var i = 0; i < resp.spelling.length; i++) {
+                        self.spellingSuggestions.push(resp.spelling[i]);
+                    }
+                }
+                if (resp.results.length === 0) {
+                    self.filterMin(null);
+                    self.filterMax(null);
+
+                    $('#dropdownMin').val('0');
+                    $("#dropdownMin").selectmenu("refresh");
+
+                    $('#dropdownMax').val('10');
+                    $("#dropdownMax").selectmenu("refresh");
                 }
                 $('[data-toggle="tooltip"]').tooltip();
             }
@@ -74,6 +114,10 @@
 
     self.hasResults = ko.computed(function () {
         return self.results().length > 0;
+    });
+
+    self.showFilter = ko.computed(function () {
+        return self.hasResults() || self.filterMin() !== null || self.filterMax() !== null;
     });
 
     self.setPage = function (i, skipauto) {
@@ -121,6 +165,17 @@
             }
         });
     };
+
+    self.spellingSuggestions = ko.observableArray([]);
+
+    self.hasSpellingSuggestions = function () {
+        return self.spellingSuggestions().length > 0;
+    }
+
+    self.clearFilters = function () {
+        self.filterMin(null);
+        self.filterMax(null);
+    }
 }
 
 var searchResult = function (reviewObj) {
@@ -131,11 +186,13 @@ var searchResult = function (reviewObj) {
     self.title = ko.observable(reviewObj.Movie.Title);
     self.episode = ko.observable(reviewObj.Movie.EpisodeName);
     self.genre = ko.observable(reviewObj.Movie.Genre);
-    self.releaseDate = ko.observable(reviewObj.Movie.ReleaseDate);
+    self.releaseDate = reviewObj.Movie.ReleaseDate === null ?
+        ko.observable("N/A") :
+        ko.observable(moment(new Date(parseInt(reviewObj.Movie.ReleaseDate.substr(6)))).format('MMMM D, YYYY'));
     self.runningTime = ko.observable(reviewObj.Movie.RunningTime);
     self.imdbId = ko.observable(reviewObj.Movie.ImdbId);
     self.matchText = ko.observableArray(reviewObj.MatchedFragments);
-    self.imageUrl = ko.observable(reviewObj.Movie.ImageUrl);
+    self.imageUrl = reviewObj.Movie.ImageUrl === "N/A" ? ko.observable("/Content/notfound.jpg") : ko.observable(reviewObj.Movie.ImageUrl);
     self.id = ko.observable(reviewObj.Id);
     self.isOpen = ko.observable(false);
     self.score = ko.observable(reviewObj.Score);

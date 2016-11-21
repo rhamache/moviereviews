@@ -6,5 +6,7 @@ namespace MovieReviews.Back.Services
     {
         Directory GetIndexDirectory();
         Directory GetAutocompleteIndexDirectory();
+        Directory GetSpellCheckIndexDirectory();
+        System.IO.FileInfo GetSpellCheckDictionaryFileInfo();
     }
 }

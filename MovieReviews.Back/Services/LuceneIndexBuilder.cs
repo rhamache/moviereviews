@@ -16,7 +16,7 @@ namespace MovieReviews.Back.Services
 {
     public class LuceneIndexBuilder : IIndexBuilder
     {
-        private const int REVIEW_TO_PROCESS_COUNT = 2000;
+        private const int REVIEW_TO_PROCESS_COUNT = 5000;
 
         protected IMovieApiService MovieApi { get; private set; }
         protected IIndexDirectoryProvider IndexDirectoryProvider { get; private set; }
@@ -67,22 +67,27 @@ namespace MovieReviews.Back.Services
             var url = File.ReadLines(urlsPath).Skip(urlLineNumber).Take(1).First();
             var id = ParseImdbIdFromUrl(url);
 
+            int intScore;
+            var intScoreParsed = int.TryParse(score, out intScore) ? intScore : -1;
+
             var fldText = new Field("text", File.ReadAllText(reviewPath), Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.YES);
             var fldUrl = new Field("url", url, Field.Store.YES, Field.Index.NO, Field.TermVector.NO);
-            var fldScr = new Field("score", score, Field.Store.YES, Field.Index.NO, Field.TermVector.NO);
+            var fldScr = new NumericField("score", 1, Field.Store.YES, true).SetIntValue(intScoreParsed);
             var fldImdbId = new Field("imdbId", id, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
 
             if (fetchMetaData)
             {
                 var movie = MovieApi.GetMovie(id);
-                var fldImdbId2 = new Field("imdbId2", movie.imdbID, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
-                var fldTitle = new Field("title", movie.Title, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.YES);
-                var fldRuntime = new Field("runtime", movie.Runtime, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
-                var fldReleased = new Field("releaseDate", movie.Released, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
-                var fldGenre = new Field("genre", movie.Genre, Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.YES);
-                var fldEpisodeName = new Field("episodeTitle", movie.EpisodeName ?? "", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.YES);
-                var fldImageUrl = new Field("image", movie.Poster, Field.Store.YES, Field.Index.NO, Field.TermVector.NO);
-                var fldCountry = new Field("country", movie.Country, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
+                DateTime release;
+
+                var fldImdbId2 = new Field("imdbId2", movie.imdbID ?? "N/A", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
+                var fldTitle = new Field("title", movie.Title ?? "N/A", Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.YES);
+                var fldRuntime = new Field("runtime", movie.Runtime ?? "N/A", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
+                var fldReleased = new Field("releaseDate", DateTime.TryParse(movie.Released, out release) ? DateTools.DateToString(release, DateTools.Resolution.DAY) : "N/A", Field.Store.YES, Field.Index.NOT_ANALYZED);
+                var fldGenre = new Field("genre", movie.Genre ?? "N/A", Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.YES);
+                var fldEpisodeName = new Field("episodeTitle", movie.EpisodeName ?? "", Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.YES);
+                var fldImageUrl = new Field("image", movie.Poster ?? "N/A", Field.Store.YES, Field.Index.NO, Field.TermVector.NO);
+                var fldCountry = new Field("country", movie.Country ?? "N/A", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
                 var fldTotalRating = new Field("overallScore", movie.imdbRating.ToString("G"), Field.Store.YES, Field.Index.NO, Field.TermVector.NO);
 
                 doc.Add(fldImdbId2);
